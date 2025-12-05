@@ -1,0 +1,113 @@
+#include <iostream>
+#include <array>
+#include <string>
+#include "usuario.h"
+#include "comic.h"
+#include "carrito.h"
+#include "metodoPago.h"
+
+using namespace std;
+
+int main() {
+
+    //solicitar datos de usuario
+    string nombreUsuario, contrasenia, correoElectronico, direccion;
+    cout << "Inicia sesion en Comics.com\n";
+    cout << "Escriba su nombre de usuario: ";
+    cin >> nombreUsuario;
+    cout << "Escriba su contrasenia: ";
+    cin >> contrasenia;
+
+    cout << "Escriba su correo electronico: ";
+    cin >> correoElectronico;
+
+    cout << "Escriba su direccion: ";
+    cin >> direccion;
+
+    cout << "Bienvenido a Comics.com, ¿listo para encontrar tu nueva historia favorita?\n";
+
+    array<comic, 100> listaComics;
+    // variedad sin repetición
+    string titulos[20] = { "Batman Ano Uno","Spiderman Blue","Invincible Vol.1","Watchmen","The Killing Joke","One Piece Vol.1","Naruto Vol.1","Bleach Vol.1","Dragon Ball 1","Attack on Titan 1","V for Vendetta","Hellboy 1","Sandman Vol.1","Saga Vol.1","Daredevil Yellow","Civil War","Kingdom Come","Berserk Vol.1","Death Note 1","Fullmetal Alchemist 1" };
+    string autores[20] = { "Frank Miller","Jeph Loeb","Robert Kirkman","Alan Moore","Brian Bolland","Eiichiro Oda","Masashi Kishimoto","Tite Kubo","Akira Toriyama","Isayama","Moore","Mignola","Gaiman","Brian Vaughn","Loeb","Millar","Waid","Miura","Oba","Arakawa" };
+    string editoriales[20] = { "DC","Marvel","Image","Vertigo","DC","Shueisha","Shueisha","Shueisha","Shueisha","Kodansha","Vertigo","Dark Horse","Vertigo","Image","Marvel","Marvel","DC","Young Animal","Shueisha","Square Enix" };
+    string generos[20] = { "Accion","Superheroes","Accion","Suspenso","Accion","Aventura","Aventura","Accion","Aventura","Accion","Suspenso","Accion","Fantasia","Sci-fi","Superheroes","Superheroes","Accion","Dark","Suspenso","Fantasia" };
+
+    for (int i = 0; i < 100; i++) {
+        int idx = i % 20;
+        listaComics[i] = comic(2000 + (i % 20), 150 + (idx % 6) * 20, titulos[idx] + " Edicion " + to_string(i / 20 + 1), autores[idx], editoriales[idx], generos[idx]);
+    }
+
+        carrito miCarrito;
+        double dinero = 0.0; // variable para guardar dinero de ventas 
+        int opcion = 0;
+        do {
+
+
+            cout << "\n===\n1. Ver lista de comics\n2. Agregar comic al carrito\n3. Ver total del carrito\n4. Finalizar compra\n5. Vender un comic propio\n6. Salir\nOpcion: ";
+
+            cin >> opcion;
+            if (opcion == 1) {
+                for (int i = 0; i < 100; i++)
+                    cout << i + 1 << ". " << listaComics[i].getNombre() << " | $" << listaComics[i].getPrecio() << " | " << listaComics[i].getEditorial() << "\n";
+            }
+
+            else if (opcion == 2) {
+                int num; cout << "Numero de comic: "; cin >> num;
+                if (num < 1 || num>100) { cout << "Invalido.\n"; continue; }
+                comic elegido = listaComics[num - 1];
+                miCarrito.agregarComic(elegido);
+                cout << "Comic agregado al carrito!\n";
+            }
+
+            else if (opcion == 3) {
+                cout << "Total: $" << miCarrito.calcularTotal() << "\n";
+            }
+
+            else if (opcion == 4) {
+                double total = miCarrito.calcularTotal();
+
+                // variables de la tarjeta
+                string tipoTarjeta, numeroTarjeta, CVV, nombreTitular;
+                array<int, 2> fechaExpiracion;
+
+                //limpiar memoria
+                cin.ignore();
+                cout << "Tipo de tarjeta (Credito/Debito): ";
+                getline(cin, tipoTarjeta);
+
+                cout << "Ingrese nombre del titular:";
+                getline(cin, nombreTitular);
+
+                cout << "Numero de tarjeta: ";
+                getline(cin, numeroTarjeta);
+
+                cout << "CVV: ";
+                getline(cin, CVV);
+
+                cout << "Fecha de expiracion (MM AA): ";
+
+                //leer mes y anio
+                cin >> fechaExpiracion[0] >> fechaExpiracion[1];
+                //instanciar metodo de pago con el objeto miMetodo
+
+                metodoPago miMetodo(tipoTarjeta, numeroTarjeta, CVV, fechaExpiracion, nombreTitular);
+                cout << "Pago realizado con exito! Gracias por su compra.\n";
+
+                //vaciar carrito
+                miCarrito = carrito();
+            }
+
+            else if (opcion == 5) {
+                string nombre; double precio;
+                cout << "Nombre del comic que vendes: "; cin.ignore(); getline(cin, nombre);
+                cout << "Precio de venta: $"; cin >> precio;
+                dinero += precio;
+                cout << "Comic vendido! Dinero actual: $" << dinero << "\n";
+            }
+        } while (opcion != 6);
+
+
+        cout << "Gracias por visitar Comics.com!\n";
+        return 0;
+    }
